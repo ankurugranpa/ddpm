@@ -9,9 +9,18 @@ Tensor: TypeAlias = torch.Tensor # データ型
 Device: TypeAlias = torch.device # デバイス型
 
 
-# 1バッチ当たりのデータ TensorType["B", "C", "H", "W"]
-BatchData: TypeAlias  = TensorType["B", "C", "H", "W"]
 
 
-# ノイズのデータ TensorType["B", "C", "H", "W"]
-Noise: TypeAlias = TensorType["B", "C", "H", "W"]
+"""
+ノイズが付与されたデータ TensorType["B", "C", "H", "W"]
+B: バッチサイズ
+C: チャンネル数
+H: 画像の高さ
+W: 画像の幅
+
+バッチサイズは一度に扱うでーたの数を表す
+ex) B=1の場合
+x[0]: 1枚目の画像データ[C, H, W]
+x[1]: 2枚目の画像データ[C, H, W]
+"""
+Noises: TypeAlias = TensorType["B", "C", "H", "W"]
