@@ -1,5 +1,3 @@
-from typing import cast
-
 import torch
 import torch.nn as nn
 
@@ -17,6 +15,9 @@ class BetaScheduler(nn.Module):
     betas: torch.Tensor
     alphas: torch.Tensor
     alphas_cumprod: torch.Tensor
+    sqrt_alphas_cumprod: torch.Tensor
+    sqrt_one_minus_alphas_cumprod: torch.Tensor
+
     def __init__(self,
                  time_step: int,
                  schedule_type: str = "normal",
@@ -60,51 +61,6 @@ class BetaScheduler(nn.Module):
                              torch.sqrt(alphas_cumprod))
         self.register_buffer("sqrt_one_minus_alphas_cumprod",
                              torch.sqrt(1.0 - alphas_cumprod))
-
-    # @property
-    # def betas(self) -> torch.Tensor:
-    #     """
-    #     β_t スケジュール
-    #     shape: (T,)
-    #     """
-    #     return cast(torch.Tensor, self._buffers["betas"])
-
-    # @property
-    # def alphas(self) -> torch.Tensor:
-    #     """
-    #     α_t = 1 - β_t
-    #     shape: (T,)
-    #     """
-    #     return cast(torch.Tensor, self._buffers["alphas"])
-
-    # @property
-    # def alphas_cumprod(self) -> torch.Tensor:
-    #     """
-    #     \bar{α}_t = ∏_{i=1}^t α_i
-    #     shape: (T,)
-    #     """
-    #     return cast(torch.Tensor, self._buffers["alphas_cumprod"])
-
-    # @property
-    # def sqrt_alphas_cumprod(self) -> torch.Tensor:
-    #     """
-    #     sqrt(\bar{α}_t)
-    #     """
-    #     return cast(torch.Tensor, self._buffers["sqrt_alphas_cumprod"])
-
-    # @property
-    # def sqrt_one_minus_alphas_cumprod(self) -> torch.Tensor:
-    #     """
-    #     sqrt(1 - \bar{α}_t)
-    #     """
-    #     return cast(
-    #         torch.Tensor,
-    #         self._buffers["sqrt_one_minus_alphas_cumprod"],
-    #     )
-
-
-
-
 
 if __name__ == "__main__":
     scheduler = BetaScheduler(time_step=10)
