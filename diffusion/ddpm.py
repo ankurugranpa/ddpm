@@ -73,8 +73,6 @@ class DDPM(nn.Module):
         if noise is None:
             noise = torch.randn_like(x0)
 
-
-
         # ノイズが付与されたデータを生成
         xt = self.q_sample(x0, t, noise)
 
