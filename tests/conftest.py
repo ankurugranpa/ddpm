@@ -1,4 +1,3 @@
-# tests/conftest.py
 import torch
 import torch.nn as nn
 import pytest
@@ -9,7 +8,7 @@ from diffusion.scheduler import BetaScheduler
 
 class DummyModel(nn.Module):
     """
-    ε をそのまま返すだけのダミーモデル
+    ε を常に 0 と予測するダミーモデル
     """
     def forward(self, x, t):
         return torch.zeros_like(x)
@@ -26,5 +25,10 @@ def scheduler():
 
 @pytest.fixture
 def ddpm(scheduler):
-    model = DummyModel()
-    return DDPM(model=model, scheduler=scheduler)
+    # model を渡さない
+    return DDPM(scheduler=scheduler)
+
+
+@pytest.fixture
+def dummy_model():
+    return DummyModel()
