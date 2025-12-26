@@ -13,11 +13,9 @@ class DDPM(nn.Module):
         - scheduler: ベータスケジューラ
     """
     def __init__(self,
-                 model:nn.Module,
                  scheduler: BetaScheduler):
 
         super().__init__()
-        self.model = model
         self.scheduler = scheduler
 
 
@@ -50,21 +48,8 @@ class DDPM(nn.Module):
         return sqrt_alpha_bar * x0 + sqrt_one_minus_alphas_cumprod * noise
 
 
-    def predict_noise(self,
-                      xt: torch.Tensor,
-                      t: torch.Tensor) -> torch.Tensor:
-        """
-        ノイズ予測モデルを用いてノイズを予測する関数
-        Args:
-            xt (torch.Tensor): ノイズが付与されたデータ(B, C, H, W)
-            t (torch.Tensor): タイムステップ(B,)
-        
-        Returns:
-            torch.Tensor: 予測されたノイズ(B, C, H, W)
-        """
-        return self.model(xt, t)
-
     def training_loss(self,
+                      model: nn.Module,
                       x0: torch.Tensor,
                       t: torch.Tensor | None = None,
                       noise: torch.Tensor | None = None,) -> torch.Tensor:
@@ -94,7 +79,7 @@ class DDPM(nn.Module):
         xt = self.q_sample(x0, t, noise)
 
         # ノイズ予測モデルでノイズを予測
-        eps_pred = self.predict_noise(xt, t)
+        eps_pred = model(xt, t)
 
         # MSE損失を計算
         loss = nn.functional.mse_loss(noise, eps_pred)
@@ -103,20 +88,23 @@ class DDPM(nn.Module):
 
 
     def reverse(self,
+                model: nn.Module,
                 xt: torch.Tensor,
                 t: torch.Tensor,
-                eps_pred: torch.Tensor,
                 noise: torch.Tensor |  None = None,) -> torch.Tensor:
         """
         逆拡散過程を実行する関数
         Args:
             xt (torch.Tensor): ノイズが付与されたデータ(B, C, H, W)
             t (torch.Tensor): タイムステップ(B,)
-            predicted_noise (torch.Tensor): 予測されたノイズ(B, C, H, W)
-        
+            model (nn.Module): ノイズ予測モデル
+            noise (torch.Tensor): 追加するノイズ(B, C, H, W)
+
         Returns:
             torch.Tensor: 1ステップ逆拡散したデータ(B, C, H, W)
         """
+
+        eps_pred = model(xt, t) 
         
         # 次元を合わせる
         sqrt_alphas = extract_to_shape(torch.sqrt(self.scheduler.alphas),
