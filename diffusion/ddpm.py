@@ -78,6 +78,9 @@ class DDPM(nn.Module):
 
         # ノイズ予測モデルでノイズを予測
         eps_pred = model(xt, t)
+        if hasattr(eps_pred, "sample"):  # UNet2DOutput 対応
+            eps_pred = eps_pred.sample
+
 
         # MSE損失を計算
         loss = nn.functional.mse_loss(noise, eps_pred)
@@ -103,6 +106,8 @@ class DDPM(nn.Module):
         """
 
         eps_pred = model(xt, t) 
+        if hasattr(eps_pred, "sample"):  # UNet2DOutput 対応
+            eps_pred = eps_pred.sample
         
         # 次元を合わせる
         sqrt_alphas = extract_to_shape(torch.sqrt(self.scheduler.alphas),
